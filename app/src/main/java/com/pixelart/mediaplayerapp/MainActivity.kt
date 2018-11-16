@@ -14,6 +14,15 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import android.content.ContentUris
+import android.content.Context
+import android.net.Uri
+import java.io.File
+import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+import java.io.FileNotFoundException
+import java.io.IOException
+
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
@@ -62,13 +71,25 @@ class MainActivity : AppCompatActivity() {
         for(i in musicList.indices)
         {
             var music = Music(musicList[i].title, musicList[i].album, musicList[i].artist, musicList[i].duration, musicList[i].coverImage, musicList[i].path)
-            Log.d(TAG, music.toString())
+            //Log.d(TAG, music.toString())
         }
     }
 
     fun initMusic()
     {
-        var cursor : Cursor? = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
+        var cursor : Cursor? = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
+            null, null, MediaStore.Audio.Media.TITLE + " ASC")
+
+        val albumArtCursor: Cursor? = contentResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, null, null, null, null)
+
+
+       /* var albumArtCursor = getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+            arrayOf<String>(MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM_ART),
+            MediaStore.Audio.Albums._ID + "=?",
+            albulmId,
+            null)*/
+
+
         if(cursor!!.moveToFirst())
         {
             do {
@@ -76,12 +97,33 @@ class MainActivity : AppCompatActivity() {
                 var album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
                 var duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
                 var artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
-                //var coverImage = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART))
                 var path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
 
-                //musicList = ArrayList()
-                (musicList as ArrayList<Music>).add(Music(title, album, artist, duration, "", path))
-            }while (cursor.moveToNext())
+                var albumid = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))
+
+                val sArtworkUri = Uri.parse("content://media/external/audio/albumart")
+                val albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumid)
+                //Log.d(TAG, albumArtUri.toString())
+
+              /*  var bitmap: Bitmap? = null
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, albumArtUri)
+                    bitmap = Bitmap.createScaledBitmap(bitmap!!, 30, 30, true)
+
+                } catch (exception: FileNotFoundException) {
+                    exception.printStackTrace()
+                    bitmap = BitmapFactory.decodeResource(
+                        this.resources,
+                        R.drawable.ic_launcher_background
+                    )
+                } catch (e: IOException) {
+
+                    e.printStackTrace()
+                }
+                var coverImage = bitmap
+                Log.d(TAG, coverImage.toString())*/
+                (musicList as ArrayList<Music>).add(Music(title, album, artist, duration, "ic_launcher_background", path))
+            } while (cursor.moveToNext())
         }
     }
 }
