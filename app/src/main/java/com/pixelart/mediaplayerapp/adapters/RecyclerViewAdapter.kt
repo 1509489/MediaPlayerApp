@@ -1,7 +1,6 @@
-package com.pixelart.mediaplayerapp
+package com.pixelart.mediaplayerapp.adapters
 
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.support.annotation.RequiresApi
 import android.widget.TextView
@@ -11,12 +10,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import com.pixelart.mediaplayerapp.Music
+import com.pixelart.mediaplayerapp.R
 import java.util.concurrent.TimeUnit
 
 
-class RecyclerViewAdapter(val context: Context, val musicList: List<Music>): RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+class RecyclerViewAdapter(val context: Context, val musicList: List<Music>, val listener: OnItemClickListener): RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
-    lateinit var allMusicPath:List<String>
+
 
     companion object {
         private val TAG = "RecyclerViewAdapter"
@@ -47,19 +48,9 @@ class RecyclerViewAdapter(val context: Context, val musicList: List<Music>): Rec
         val image = context.resources.getIdentifier(music.coverImage, "drawable", context.packageName)
         holder.ivCoverImage.setImageResource(image)
 
-        allMusicPath = ArrayList()
-
         holder.itemView.setOnClickListener{
-            for (i in 0 until musicList.size){
-                (allMusicPath as ArrayList<String>).add(musicList[i].path)
 
-            }
-            Log.d(TAG, "all music path $allMusicPath")
-            var intent= Intent(context, MediaPlayerService::class.java)
-            intent.action = "musicPlayer"
-            intent.putStringArrayListExtra("musicPaths", allMusicPath as ArrayList<String>)
-            intent.putExtra("musicPosition", position)
-            context.startService(intent)
+            listener.onItemClickedListener(position)
         }
     }
 
@@ -86,6 +77,12 @@ class RecyclerViewAdapter(val context: Context, val musicList: List<Music>): Rec
             tvAlbum = itemView.findViewById(R.id.tvAlbum)
             tvDuration = itemView.findViewById(R.id.tvDuration)
             ivCoverImage = itemView.findViewById(R.id.ivCoverImage)
+        }
+    }
+
+    interface OnItemClickListener{
+        fun onItemClickedListener(position: Int){
+
         }
     }
 }

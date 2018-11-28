@@ -10,8 +10,15 @@ import android.support.v4.app.NotificationCompat
 import android.app.PendingIntent
 import android.app.NotificationManager
 import android.app.NotificationChannel
+import android.media.MediaMetadataRetriever
+import android.net.Uri
+import android.os.Binder
 import android.os.Build
-
+import android.os.Handler
+import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
+import android.support.v4.os.HandlerCompat.postDelayed
 
 
 
@@ -20,9 +27,16 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     private val TAG = "MediaPlayerService"
     private val CHANNEL_ID = "myNotificationChannel"
 
+    private val iBinder = MyIBinder()
+
     lateinit var musicPlayer: MediaPlayer
+    lateinit var mediaDataRetriever: MediaMetadataRetriever
     private var currentSong: Int = 0
     private lateinit var musicPaths: ArrayList<String>
+
+    lateinit var artist: String
+    lateinit var title:String
+
 
 
     override fun onCreate() {
@@ -30,10 +44,17 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         Log.d(TAG, "onCreate")
         musicPlayer = MediaPlayer()
         musicPaths = ArrayList()
+        mediaDataRetriever = MediaMetadataRetriever()
+
     }
 
     override fun onBind(intent: Intent): IBinder {
-        TODO("Return the communication channel to the service.")
+        return iBinder
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        return super.onUnbind(intent)
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -42,15 +63,22 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         musicPaths = intent!!.getStringArrayListExtra("musicPaths")
         Log.d(TAG, musicPaths.toString())
 
-        if (musicPlayer != null)
-        {
-            musicPlayer.stop()
-            musicPlayer.reset()
-            musicPlayer.release()
-        }
-        playMusic()
-        initNotification()
+        if (intent!!.action == "musicPlayer") {
 
+            if (musicPlayer != null) {
+                musicPlayer.stop()
+                musicPlayer.reset()
+                musicPlayer.release()
+            }
+            mediaDataRetriever.setDataSource(this, Uri.parse(musicPaths[currentSong]))
+            playMusic()
+            sendBroadcast()
+            initNotification()
+            isPlaying()
+
+
+        }
+       // TabActivity.newInstance().playPause(musicPlayer.isPlaying)
 
         return START_NOT_STICKY
     }
@@ -63,7 +91,73 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         musicPlayer.setOnPreparedListener(this)
         musicPlayer.setOnCompletionListener(this)
         currentSong++
+
     }
+
+    fun isPlaying(): Boolean{
+        return musicPlayer.isPlaying
+    }
+
+    fun mediaControls(btnPlay : View, btnPause : View, btnPrev: View, btnNext: View, tvTitle: TextView, tvArtist: TextView)
+    {
+        btnPause.setOnClickListener {
+            if (isPlaying())
+                musicPlayer.pause()
+        }
+        btnPlay.setOnClickListener{
+            if (!isPlaying())
+                musicPlayer.start()
+        }
+
+
+        if (isPlaying())
+        {
+
+        }
+
+
+
+        /*val thread = object : Thread() {
+            override fun run() {
+                try {
+                    while (true) {
+                        if (isPlaying())
+                        {
+                            tvTitle.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
+                            tvArtist.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
+                        }
+                        Thread.sleep(1000)
+                        handler.post(this)
+                    }
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+
+            }
+        }*/
+    }
+
+    private fun sendBroadcast()
+    {
+        val isPlayingBroadcast = Intent()
+
+        if (musicPlayer.isPlaying)
+        {
+            for (i in 0..100)
+            {
+                try {
+                    Thread.sleep(1000)
+                    isPlayingBroadcast.action = "isPlayingAction"
+                    isPlayingBroadcast.putExtra("isPlaying", true)
+                    sendBroadcast(isPlayingBroadcast)
+                }catch (e:InterruptedException)
+                {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
 
     private fun initNotification() {
 
@@ -84,7 +178,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         }
 
 
-        val notificationIntent = Intent(this, MainActivity::class.java)
+        val notificationIntent = Intent(this, TabActivity::class.java)
         notificationIntent.putExtra("stopMusic", "stopMusic")
         notificationIntent.action = "stopMusic"
 
@@ -108,6 +202,44 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
 
     override fun onPrepared(mp: MediaPlayer?) {
         musicPlayer.start()
+
+        if (isPlaying())
+        {
+            title = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
+            artist = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
+        }
+
+        val musicBroadcast = Intent()
+        val handler = Handler()
+        for (i : Int in 1..100)
+        {
+
+
+        }
+        while (isPlaying())
+        {
+            try {
+                Thread.sleep(1000)
+
+                musicBroadcast.action = "musicAction"
+                musicBroadcast.putExtra("title", title)
+                musicBroadcast.putExtra("artist", artist)
+                sendBroadcast(musicBroadcast)
+
+                Log.d(TAG, "$artist, $title")
+            }catch (e :InterruptedException)
+            {
+                e.printStackTrace()
+            }
+        }
+        /*val r = Runnable {
+            musicBroadcast.action = "musicAction"
+            musicBroadcast.putExtra("title", title)
+            musicBroadcast.putExtra("artist", artist)
+            sendBroadcast(musicBroadcast)
+        }
+        handler.postDelayed(r, 1000)*/
+        Toast.makeText(this, "$title $artist", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
@@ -156,4 +288,14 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
 
         return false
     }
+
+
+    inner class MyIBinder : Binder(){
+        fun getService(): MediaPlayerService
+        {
+            return this@MediaPlayerService
+        }
+    }
+
+
 }
