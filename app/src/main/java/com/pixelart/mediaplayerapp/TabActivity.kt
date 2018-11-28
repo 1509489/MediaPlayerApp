@@ -9,11 +9,16 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v4.view.ViewPager
 import android.os.Bundle
 import android.os.IBinder
+import android.support.constraint.ConstraintSet
+import android.support.transition.ChangeBounds
+import android.support.transition.TransitionManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.animation.OvershootInterpolator
 import android.widget.Toast
 import com.pixelart.mediaplayerapp.adapters.TabsAdapter
 import com.pixelart.mediaplayerapp.fragments.AlbumFragment
@@ -21,7 +26,8 @@ import com.pixelart.mediaplayerapp.fragments.ArtistFragment
 import com.pixelart.mediaplayerapp.fragments.TracksFragment
 
 import kotlinx.android.synthetic.main.activity_tab.*
-import kotlinx.android.synthetic.main.small_media_controller.*
+
+//import kotlinx.android.synthetic.main.small_media_controller.*
 
 class TabActivity : AppCompatActivity() {
     private val TAG = "TabActivity"
@@ -32,6 +38,10 @@ class TabActivity : AppCompatActivity() {
     lateinit var mediaPlayerService: MediaPlayerService
     lateinit var title: String
     lateinit var artist:String
+
+    private val constraintSetOld = ConstraintSet()
+    private val constraintSetNew = ConstraintSet()
+    private var altLayout = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +57,9 @@ class TabActivity : AppCompatActivity() {
             tabs.setupWithViewPager(container, true)
             setupViewPager(container)
         }
+
+        constraintSetOld.clone(main_content)
+        constraintSetNew.clone(this, R.layout.activity_media_controller)
 
         val boundServiceIntent = Intent(this, MediaPlayerService::class.java)
         bindService(boundServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -122,6 +135,36 @@ class TabActivity : AppCompatActivity() {
             Log.d(TAG, "Service Connected ${mediaPlayerService.isPlaying()}")
         }
 
+    }
+
+    fun swapView(view: View)
+    {
+        val changeBounds = ChangeBounds()
+        changeBounds.interpolator = OvershootInterpolator()
+        TransitionManager.beginDelayedTransition(main_content, changeBounds)
+
+         if(altLayout) {
+            constraintSetOld.applyTo(main_content)
+             ibSwapView.setImageResource(R.drawable.ic_arrow_up)
+        } else {
+            constraintSetNew.applyTo(main_content)
+             ibSwapView.setImageResource(R.drawable.ic_arrow_down)
+        }
+        altLayout = !altLayout
+    }
+
+    override fun onBackPressed() {
+        val changeBounds = ChangeBounds()
+        changeBounds.interpolator = OvershootInterpolator()
+        TransitionManager.beginDelayedTransition(main_content, changeBounds)
+
+        if(altLayout) {
+            constraintSetOld.applyTo(main_content)
+            ibSwapView.setImageResource(R.drawable.ic_arrow_up)
+        } else {
+            super.onBackPressed()
+        }
+        altLayout = !altLayout
     }
 
     override fun onStart() {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                                  xmlns:tools="http://schemas.android.com/tools"
                                                  xmlns:app="http://schemas.android.com/apk/res-auto"
                                                  android:id="@+id/main_content"
@@ -8,11 +8,16 @@
                                                  android:fitsSystemWindows="true"
                                                  tools:context=".TabActivity">
 
-    <android.support.constraint.ConstraintLayout android:layout_width="match_parent"
-                                                 android:layout_height="match_parent"
-                                                 android:id="@+id/clMain">
 
-        <android.support.design.widget.AppBarLayout
+    <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:onClick="swapView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:id="@+id/cvContainer" app:cardBackgroundColor="@color/colorTransparent" android:visibility="gone"/>
+    <android.support.design.widget.AppBarLayout
                 android:id="@+id/appbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -44,30 +49,238 @@
             </android.support.design.widget.TabLayout>
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.view.ViewPager
-                android:id="@+id/container"
+    <android.support.v4.view.ViewPager
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintBottom_toBottomOf="@id/ibSwapView"
+            app:layout_constraintBottom_toTopOf="@id/ibSwapView" android:layout_marginBottom="4dp"
+            app:layout_constraintTop_toBottomOf="@+id/appbar" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+    </android.support.v4.view.ViewPager>
+
+    <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp" app:srcCompat="@drawable/ic_skip_previous"
+            android:id="@+id/ibPrevious"
+            android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
+            android:contentDescription="TODO" android:background="@color/colorTransparent"
+            android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/ibPause"/>
+    <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp" app:srcCompat="@drawable/ic_pause"
+            android:id="@+id/ibPause"
+            android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
+            android:contentDescription="TODO" android:background="@color/colorTransparent"
+            app:layout_constraintEnd_toStartOf="@+id/ibPlay"/>
+    <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp" app:srcCompat="@drawable/ic_play_arrow"
+            android:id="@+id/ibPlay"
+            android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="16dp" app:layout_constraintEnd_toStartOf="@+id/ibNext"
+            android:contentDescription="TODO" android:background="@color/colorTransparent"/>
+    <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp" app:srcCompat="@drawable/ic_launcher_background"
+            android:id="@+id/ivAlbumArt" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:contentDescription="TODO"/>
+    <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp" app:srcCompat="@drawable/ic_skip_next"
+            android:id="@+id/ibNext"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
+            android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@color/colorTransparent"/>
+    <TextView
+            android:text="Title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvTitle"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            app:layout_constraintStart_toEndOf="@+id/ivAlbumArt"
+            android:layout_marginStart="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/ibPrevious"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            android:textSize="18sp" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/tvArtist" android:textAlignment="viewStart"/>
+    <TextView
+            android:text="Artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvArtist"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            app:layout_constraintStart_toEndOf="@+id/ivAlbumArt"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ibPrevious"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintHorizontal_bias="0.0" android:textAlignment="viewStart"/>
+    <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pbSeekBar"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/ibPlay" android:visibility="gone"/>
+    <TextView
+            android:text="3:49"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvDuration" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/pbSeekBar" android:layout_marginTop="2dp"
+            android:textSize="12sp" android:visibility="gone"/>
+    <TextView
+            android:text="00:00"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvProgressTimer" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp" app:layout_constraintTop_toBottomOf="@+id/pbSeekBar"
+            android:textSize="12sp" android:visibility="gone"/>
+    <Button
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:id="@+id/btnRepeat"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toEndOf="@+id/ibNext"
+            android:layout_marginStart="8dp" android:visibility="gone" android:background="@drawable/ic_repeat"/>
+    <Button
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:id="@+id/btnShuffle"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
+            android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ibPrevious" android:layout_marginEnd="8dp"
+            android:visibility="gone" android:background="@drawable/ic_shuffle"/>
+    <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp" app:srcCompat="@drawable/ic_arrow_up"
+            android:id="@+id/ibSwapView"
+            android:background="@color/colorTransparent" android:onClick="swapView"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/ivAlbumArt"/>
+
+    <!-- CardView Start here
+    <android.support.v7.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/cvContainer"
+            android:onClick="swapView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" app:cardElevation="5dp">
+        <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                app:layout_constraintTop_toBottomOf="@+id/appbar"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0" android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toTopOf="@+id/include2"/>
+                android:layout_height="wrap_content">
 
-        <include android:layout_width="match_parent"
-                 android:layout_height="wrap_content"
-                 layout="@layout/small_media_controller"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintBottom_toBottomOf="parent"
-                 app:layout_constraintEnd_toEndOf="parent"
-                 android:id="@+id/include2"
-        >
+            <ImageButton
+                    android:layout_width="35dp"
+                    android:layout_height="35dp" app:srcCompat="@drawable/ic_pause"
+                    android:id="@+id/ibPause"
+                    android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+                    android:contentDescription="TODO" android:background="@color/colorTransparent"
+                    android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/ibPlay"/>
+            <ImageButton
+                    android:layout_width="35dp"
+                    android:layout_height="35dp" app:srcCompat="@drawable/ic_skip_previous"
+                    android:id="@+id/ibPrevious"
+                    android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+                    android:contentDescription="TODO" android:background="@color/colorTransparent"
+                    android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/ibPause"/>
+            <ImageButton
+                    android:layout_width="35dp"
+                    android:layout_height="35dp" app:srcCompat="@drawable/ic_play_arrow"
+                    android:id="@+id/ibPlay"
+                    android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/ibNext"
+                    android:contentDescription="TODO" android:background="@color/colorTransparent"/>
+            <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp" app:srcCompat="@drawable/ic_launcher_background"
+                    android:id="@+id/ivAlbumArt" app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginStart="8dp" android:layout_marginTop="8dp"
+                    app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintVertical_bias="0.0" android:contentDescription="TODO"/>
+            <ImageButton
+                    android:layout_width="35dp"
+                    android:layout_height="35dp" app:srcCompat="@drawable/ic_skip_next"
+                    android:id="@+id/ibNext"
+                    app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
+                    android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+                    android:background="@color/colorTransparent"/>
+            <TextView
+                    android:text="Title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tvTitle"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    app:layout_constraintStart_toEndOf="@+id/ivAlbumArt"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="14dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/ibPrevious"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    android:textSize="18sp"/>
+            <TextView
+                    android:text="Artist"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tvArtist"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    app:layout_constraintStart_toEndOf="@+id/ivAlbumArt"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="14dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/ibPrevious"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTitle"/>
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.CardView>
+    -->
+<!--
+    <include android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             layout="@layout/small_media_controller"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             android:id="@+id/include2"
+             android:visibility="invisible">
 
 
-        </include>
+    </include>
+    -->
 
     </android.support.constraint.ConstraintLayout>
-
-
-</android.support.design.widget.CoordinatorLayout>

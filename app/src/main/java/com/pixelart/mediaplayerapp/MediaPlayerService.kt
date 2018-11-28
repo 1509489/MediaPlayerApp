@@ -216,7 +216,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
 
 
         }
-        while (isPlaying())
+        /*while (isPlaying())
         {
             try {
                 Thread.sleep(1000)
@@ -231,7 +231,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             {
                 e.printStackTrace()
             }
-        }
+        }*/
         /*val r = Runnable {
             musicBroadcast.action = "musicAction"
             musicBroadcast.putExtra("title", title)
