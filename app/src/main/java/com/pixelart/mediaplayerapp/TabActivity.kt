@@ -27,8 +27,6 @@ import com.pixelart.mediaplayerapp.fragments.TracksFragment
 
 import kotlinx.android.synthetic.main.activity_tab.*
 
-//import kotlinx.android.synthetic.main.small_media_controller.*
-
 class TabActivity : AppCompatActivity() {
     private val TAG = "TabActivity"
 
@@ -120,17 +118,8 @@ class TabActivity : AppCompatActivity() {
             isBound = true
 
             mediaPlayerService.mediaControls(ibPlay, ibPause, ibPrevious, ibNext, tvTitle, tvArtist)
+            mediaPlayerService.seekBar(seekBar, tvCurrentDuration, tvTotalDuration)
 
-
-            try {
-                Thread.sleep(1000)
-
-                if (mediaPlayerService.isPlaying())
-                    tvArtist.text = mediaPlayerService.artist
-            }catch (e :InterruptedException)
-            {
-                e.printStackTrace()
-            }
 
             Log.d(TAG, "Service Connected ${mediaPlayerService.isPlaying()}")
         }

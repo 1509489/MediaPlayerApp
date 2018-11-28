@@ -10,17 +10,16 @@ import android.support.v4.app.NotificationCompat
 import android.app.PendingIntent
 import android.app.NotificationManager
 import android.app.NotificationChannel
+import android.media.MediaMetadata
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
 import android.view.View
-import android.widget.ImageButton
 import android.widget.TextView
-import android.support.v4.os.HandlerCompat.postDelayed
-
-
+import android.widget.SeekBar
+import com.pixelart.mediaplayerapp.utilities.Utilities
 
 
 class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnErrorListener {
@@ -28,14 +27,19 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     private val CHANNEL_ID = "myNotificationChannel"
 
     private val iBinder = MyIBinder()
+    val handler = Handler()
 
+    lateinit var seekBar: SeekBar
     lateinit var musicPlayer: MediaPlayer
     lateinit var mediaDataRetriever: MediaMetadataRetriever
     private var currentSong: Int = 0
     private lateinit var musicPaths: ArrayList<String>
 
-    lateinit var artist: String
-    lateinit var title:String
+    lateinit var artist: TextView
+    lateinit var title:TextView
+    lateinit var currentDuration: TextView
+    lateinit var totalDuration: TextView
+
 
 
 
@@ -45,6 +49,11 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         musicPlayer = MediaPlayer()
         musicPaths = ArrayList()
         mediaDataRetriever = MediaMetadataRetriever()
+        seekBar = SeekBar(this)
+        totalDuration = TextView(this)
+        currentDuration = TextView(this)
+        artist = TextView(this)
+        title = TextView(this)
 
     }
 
@@ -72,13 +81,13 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             }
             mediaDataRetriever.setDataSource(this, Uri.parse(musicPaths[currentSong]))
             playMusic()
-            sendBroadcast()
             initNotification()
             isPlaying()
 
 
         }
-       // TabActivity.newInstance().playPause(musicPlayer.isPlaying)
+
+
 
         return START_NOT_STICKY
     }
@@ -88,6 +97,13 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         musicPlayer = MediaPlayer()
         musicPlayer.setDataSource(musicPaths[currentSong])
         musicPlayer.prepareAsync()
+
+        if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null)
+            title.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
+
+        if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
+            artist.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
+
         musicPlayer.setOnPreparedListener(this)
         musicPlayer.setOnCompletionListener(this)
 
@@ -100,6 +116,8 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
 
     fun mediaControls(btnPlay : View, btnPause : View, btnPrev: View, btnNext: View, tvTitle: TextView, tvArtist: TextView)
     {
+        artist = tvArtist
+        title = tvTitle
         btnPause.setOnClickListener {
             if (isPlaying())
                 musicPlayer.pause()
@@ -124,6 +142,11 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
                     //currentSong++
                 }
                 playMusic()
+                if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null)
+                    title.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
+
+                if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
+                    artist.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
             }
         }
 
@@ -141,27 +164,64 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
                     currentSong--
                 }
                 playMusic()
+                if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null)
+                    title.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
+
+                if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
+                    artist.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
             }
         }
     }
 
-    private fun sendBroadcast()
+    fun seekBar(seekBar: SeekBar, cDuration: TextView, tDuration: TextView)
     {
-        val isPlayingBroadcast = Intent()
-
-        if (musicPlayer.isPlaying)
-        {
-            for (i in 0..100)
-            {
-                try {
-                    Thread.sleep(1000)
-                    isPlayingBroadcast.action = "isPlayingAction"
-                    isPlayingBroadcast.putExtra("isPlaying", true)
-                    sendBroadcast(isPlayingBroadcast)
-                }catch (e:InterruptedException)
+        this.seekBar = seekBar
+        totalDuration = tDuration
+        currentDuration = cDuration
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser)
                 {
-                    e.printStackTrace()
+                    musicPlayer.seekTo(progress)
                 }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                handler.removeCallbacks(updateTimeTask())
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                handler.removeCallbacks(updateTimeTask())
+                musicPlayer.seekTo(seekBar!!.progress)
+                updateSeekBar()
+            }
+
+        })
+    }
+    fun updateSeekBar()
+    {
+        handler.postDelayed(updateTimeTask(), 1000)
+    }
+    fun updateTimeTask() = object: Runnable
+    {
+        override fun run() {
+            val utilities = Utilities()
+
+            seekBar.progress = musicPlayer.currentPosition
+            if (isPlaying())
+            {
+                val tDuration : Long = musicPlayer.duration.toLong()
+                val cDuration : Long = musicPlayer.currentPosition.toLong()
+                totalDuration.text = utilities.milliSecondsToTimer(tDuration)
+                currentDuration.text = utilities.milliSecondsToTimer(cDuration)
+
+                if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null)
+                    title.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
+
+                if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
+                    artist.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
+
+                handler.postDelayed(this, 1000)
             }
         }
     }
@@ -209,45 +269,14 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
+        seekBar.max = musicPlayer.duration
         musicPlayer.start()
+        updateSeekBar()
+        if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null)
+            title.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
 
-        if (isPlaying())
-        {
-            title = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
-            artist = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
-        }
-
-        val musicBroadcast = Intent()
-        val handler = Handler()
-        for (i : Int in 1..100)
-        {
-
-
-        }
-        /*while (isPlaying())
-        {
-            try {
-                Thread.sleep(1000)
-
-                musicBroadcast.action = "musicAction"
-                musicBroadcast.putExtra("title", title)
-                musicBroadcast.putExtra("artist", artist)
-                sendBroadcast(musicBroadcast)
-
-                Log.d(TAG, "$artist, $title")
-            }catch (e :InterruptedException)
-            {
-                e.printStackTrace()
-            }
-        }*/
-        /*val r = Runnable {
-            musicBroadcast.action = "musicAction"
-            musicBroadcast.putExtra("title", title)
-            musicBroadcast.putExtra("artist", artist)
-            sendBroadcast(musicBroadcast)
-        }
-        handler.postDelayed(r, 1000)*/
-       // Toast.makeText(this, "$title $artist $currentSong", Toast.LENGTH_SHORT).show()
+        if (mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
+            artist.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
     }
 
     override fun onCompletion(mp: MediaPlayer?) {

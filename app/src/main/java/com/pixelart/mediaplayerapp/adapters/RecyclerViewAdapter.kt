@@ -72,10 +72,10 @@ class RecyclerViewAdapter(val context: Context, val musicList: List<Music>, val 
         var ivCoverImage: ImageView
 
         init {
-            tvTitle = itemView.findViewById(R.id.tvTitle)
-            tvArtist = itemView.findViewById(R.id.tvArtist)
-            tvAlbum = itemView.findViewById(R.id.tvAlbum)
-            tvDuration = itemView.findViewById(R.id.tvDuration)
+            tvTitle = itemView.findViewById(R.id.rv_tvTitle)
+            tvArtist = itemView.findViewById(R.id.rv_tvArtist)
+            tvAlbum = itemView.findViewById(R.id.rv_tvAlbum)
+            tvDuration = itemView.findViewById(R.id.rv_tvTotalDuration)
             ivCoverImage = itemView.findViewById(R.id.ivCoverImage)
         }
     }

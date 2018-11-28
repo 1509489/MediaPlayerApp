@@ -84,8 +84,8 @@
             android:layout_marginStart="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent" android:textAlignment="viewStart"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle"/>
+            app:layout_constraintHorizontal_bias="0.502"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/tvTitle"/>
     <ImageView
             android:layout_width="250dp"
             android:layout_height="250dp" app:srcCompat="@drawable/ic_launcher_background"
@@ -144,30 +144,26 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:srcCompat="@drawable/ic_repeat"
             android:background="@drawable/ripple_effect"/>
-    <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/pbSeekBar"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            app:layout_constraintHorizontal_bias="0.0" android:layout_marginBottom="52dp"
-            app:layout_constraintBottom_toTopOf="@+id/ibPause"/>
     <TextView
             android:text="00:00"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tvProgressTimer" app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/tvCurrentDuration" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/pbSeekBar"
-            android:textSize="12sp"/>
+            android:textSize="12sp" app:layout_constraintTop_toBottomOf="@+id/seekBar" android:layout_marginTop="4dp"/>
     <TextView
-            android:text="3:49"
+            android:text="0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tvDuration" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/pbSeekBar" android:layout_marginTop="8dp"
-            android:textSize="12sp"/>
+            android:id="@+id/tvTotalDuration" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
+            android:textSize="12sp" app:layout_constraintTop_toBottomOf="@+id/seekBar" android:layout_marginTop="4dp"/>
+    <SeekBar
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekBar" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginBottom="44dp" app:layout_constraintBottom_toTopOf="@+id/ibNext"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            app:layout_constraintHorizontal_bias="0.0"/>
     <ImageButton
             android:layout_width="35dp"
             android:layout_height="35dp" app:srcCompat="@drawable/ic_arrow_down"
