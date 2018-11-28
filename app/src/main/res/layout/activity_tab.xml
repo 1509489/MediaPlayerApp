@@ -65,14 +65,14 @@
             android:layout_height="35dp" app:srcCompat="@drawable/ic_skip_previous"
             android:id="@+id/ibPrevious"
             android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
-            android:contentDescription="TODO" android:background="@color/colorTransparent"
+            android:contentDescription="TODO" android:background="@drawable/ripple_effect"
             android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@+id/ibPause"/>
     <ImageButton
             android:layout_width="35dp"
             android:layout_height="35dp" app:srcCompat="@drawable/ic_pause"
             android:id="@+id/ibPause"
             android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
-            android:contentDescription="TODO" android:background="@color/colorTransparent"
+            android:contentDescription="TODO" android:background="@drawable/ripple_effect"
             app:layout_constraintEnd_toStartOf="@+id/ibPlay"/>
     <ImageButton
             android:layout_width="35dp"
@@ -80,7 +80,7 @@
             android:id="@+id/ibPlay"
             android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginEnd="16dp" app:layout_constraintEnd_toStartOf="@+id/ibNext"
-            android:contentDescription="TODO" android:background="@color/colorTransparent"/>
+            android:contentDescription="TODO" android:background="@drawable/ripple_effect"/>
     <ImageView
             android:layout_width="60dp"
             android:layout_height="60dp" app:srcCompat="@drawable/ic_launcher_background"
@@ -95,7 +95,7 @@
             android:id="@+id/ibNext"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
-            android:background="@color/colorTransparent"/>
+            android:background="@drawable/ripple_effect"/>
     <TextView
             android:text="Title"
             android:layout_width="0dp"
@@ -152,22 +152,25 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="2dp" app:layout_constraintTop_toBottomOf="@+id/pbSeekBar"
             android:textSize="12sp" android:visibility="gone"/>
-    <Button
+    <ImageButton
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:id="@+id/btnRepeat"
+            android:id="@+id/ibRepeat"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toEndOf="@+id/ibNext"
-            android:layout_marginStart="8dp" android:visibility="gone" android:background="@drawable/ic_repeat"/>
-    <Button
+            android:layout_marginStart="8dp" android:visibility="gone" android:background="@drawable/ripple_effect"
+            app:srcCompat="@drawable/ic_repeat"/>
+    <ImageButton
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:id="@+id/btnShuffle"
+            android:id="@+id/ibShuffle"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
             android:layout_marginBottom="24dp" app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ibPrevious" android:layout_marginEnd="8dp"
-            android:visibility="gone" android:background="@drawable/ic_shuffle"/>
+            android:background="@drawable/ripple_effect"
+            app:srcCompat="@drawable/ic_shuffle"
+            android:visibility="gone"/>
     <ImageButton
             android:layout_width="35dp"
             android:layout_height="35dp" app:srcCompat="@drawable/ic_arrow_up"

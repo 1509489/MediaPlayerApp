@@ -90,7 +90,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         musicPlayer.prepareAsync()
         musicPlayer.setOnPreparedListener(this)
         musicPlayer.setOnCompletionListener(this)
-        currentSong++
+
 
     }
 
@@ -104,37 +104,45 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             if (isPlaying())
                 musicPlayer.pause()
         }
+
         btnPlay.setOnClickListener{
             if (!isPlaying())
                 musicPlayer.start()
         }
 
-
-        if (isPlaying())
-        {
-
+        btnNext.setOnClickListener {
+            if (isPlaying())
+            {
+                currentSong++
+                if ( currentSong >= musicPaths.size)
+                {
+                    musicPlayer.stop()
+                    currentSong = 0
+                }
+                else {
+                    musicPlayer.stop()
+                    //currentSong++
+                }
+                playMusic()
+            }
         }
 
-
-
-        /*val thread = object : Thread() {
-            override fun run() {
-                try {
-                    while (true) {
-                        if (isPlaying())
-                        {
-                            tvTitle.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).toString()
-                            tvArtist.text = mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST).toString()
-                        }
-                        Thread.sleep(1000)
-                        handler.post(this)
-                    }
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
+        btnPrev.setOnClickListener {
+            val temp = musicPaths.size
+            if (isPlaying())
+            {
+                if ( currentSong == 0)
+                {
+                    musicPlayer.stop()
+                    currentSong = temp-1
                 }
-
+                else {
+                    musicPlayer.stop()
+                    currentSong--
+                }
+                playMusic()
             }
-        }*/
+        }
     }
 
     private fun sendBroadcast()
@@ -239,13 +247,15 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             sendBroadcast(musicBroadcast)
         }
         handler.postDelayed(r, 1000)*/
-        Toast.makeText(this, "$title $artist", Toast.LENGTH_SHORT).show()
+       // Toast.makeText(this, "$title $artist $currentSong", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
         Log.d(TAG, "onCompletion")
-        if (!musicPlayer.isLooping)
+        if (!musicPlayer.isLooping) {
+            currentSong++
             playMusic()
+        }
         else
             return
 
